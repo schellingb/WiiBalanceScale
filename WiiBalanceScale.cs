@@ -4,6 +4,7 @@ WiiBalanceScale
 MIT License
 
 Copyright (c) 2017 Bernhard Schelling
+Copyright (c) 2023 Carl Ansell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 **********************************************************************************/
 
+using System;
 using System.Windows.Forms;
 using WiimoteLib;
+using RadioButton = System.Windows.Forms.RadioButton;
 
 [assembly: System.Reflection.AssemblyTitle("WiiBalanceScale")]
 [assembly: System.Reflection.AssemblyProduct("WiiBalanceScale")]
@@ -37,6 +40,10 @@ namespace WiiBalanceScale
 {
     internal class WiiBalanceScale
     {
+        const int KgUnit = 0;
+        const int LbUnit = 1;
+        const int StoneUnit = 2;
+
         static WiiBalanceScaleForm f = null;
         static Wiimote bb = null;
         static ConnectionManager cm = null;
@@ -45,7 +52,7 @@ namespace WiiBalanceScale
         static float[] History = new float[100];
         static int HistoryBest = 1, HistoryCursor = -1;
         static string StarFull = "", StarEmpty = "";
-        static bool UsePounds = false;
+        static int SelectedUnit;
 
         static void Main(string[] args)
         {
@@ -59,7 +66,10 @@ namespace WiiBalanceScale
             f.lblQuality.Text = "";
             f.lblUnit.Text = "";
             f.btnReset.Click += new System.EventHandler(btnReset_Click);
-            f.lblUnit.Click += new System.EventHandler(lblUnit_Click);
+            f.unitSelectorKg.CheckedChanged += new System.EventHandler(unitRadioButton_Change);
+            f.unitSelectorLb.CheckedChanged += new System.EventHandler(unitRadioButton_Change);
+            f.unitSelectorStone.CheckedChanged += new System.EventHandler(unitRadioButton_Change);
+            f.unitSelectorKg.Checked = true;
 
             ConnectBalanceBoard(false);
             if (f == null) return; //connecting required application restart, end this process here
@@ -93,6 +103,7 @@ namespace WiiBalanceScale
             }
             if (cm != null) { cm.Cancel(); cm = null; }
 
+            f.unitSelector.Visible = true;
             f.lblWeight.Text = "...";
             f.lblQuality.Text = "";
             f.lblUnit.Text = "";
@@ -160,15 +171,46 @@ namespace WiiBalanceScale
             kg = HistorySum / HistoryBest - ZeroedWeight;
 
             float accuracy = 1.0f / HistoryBest;
-            kg = (float)System.Math.Floor(kg / accuracy + 0.5f) * accuracy;
+            float weight = (float)System.Math.Floor(kg / accuracy + 0.5f) * accuracy;
 
-            if (UsePounds) kg *= 2.20462262f;
-            f.lblWeight.Text = (kg >= 0.0f && kg < 10.0f ? " " : "") + kg.ToString("0.00") + (kg <= -10.0f ? "" : "0");
+            if (SelectedUnit != KgUnit) weight *= 2.20462262f;
+            if (SelectedUnit == StoneUnit)
+            {
+                string sign = weight < 0.0f ? "-" : "";
+                weight = Math.Abs(weight);
+                f.lblWeight.Text = sign + (weight / 14.0f).ToString("00") + ":" + (weight % 14.0f).ToString("00.0");
+                f.lblUnit.Text = "st:lbs";
+            }
+            else
+            {
+                f.lblWeight.Text = weight <= -100.0f ? weight.ToString("00.00") : weight.ToString("00.000");
+                f.lblUnit.Text = (SelectedUnit != KgUnit ? "lbs" : "kg");
+            }
 
             f.lblQuality.Text = "";
             for (int i = 0; i < 5; i++)
                 f.lblQuality.Text += (i < ((HistoryBest + 5) / (History.Length / 5)) ? StarFull : StarEmpty);
-            f.lblUnit.Text = (UsePounds ? "lbs" : "kg");
+        }
+
+        static void unitRadioButton_Change(object sender, EventArgs e)
+        {
+            RadioButton radioButton = sender as RadioButton;
+
+            if (radioButton.Checked)
+            {
+                switch (radioButton.Name)
+                {
+                    case "unitSelectorKg":
+                        SelectedUnit = KgUnit;
+                        break;
+                    case "unitSelectorLb":
+                        SelectedUnit = LbUnit;
+                        break;
+                    case "unitSelectorStone":
+                        SelectedUnit = StoneUnit;
+                        break;
+                }
+            }
         }
 
         static void btnReset_Click(object sender, System.EventArgs e)
@@ -177,11 +219,6 @@ namespace WiiBalanceScale
             for (int i = 0; i < HistoryBest; i++)
                 HistorySum += History[(HistoryCursor + History.Length - i) % History.Length];
             ZeroedWeight = HistorySum / HistoryBest;
-        }
-
-        static void lblUnit_Click(object sender, System.EventArgs e)
-        {
-            UsePounds = !UsePounds;
         }
     }
 }

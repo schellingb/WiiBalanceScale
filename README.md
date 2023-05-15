@@ -16,9 +16,9 @@ The application will then quickly calculate the initial zeroing. At any time you
 
 Below the weight you can find a gauge indicating the quality/accuracy of the measurement. It goes from 0 stars (1 kg unit accuracy) to 5 stars (± 20 gram accuracy) after 5 seconds. The Wii Balance Board is not very accurate in an instant measure but it becomes more accurate by accumulating measurement over time.
 
-Click the weight unit label to switch between kilogram (kg) and pounds (lbs).
+Use the unit selector to choose between kilograms (kg), pounds (lbs) and stone/pounds (st/lbs).
 
-![Screenshot](https://raw.githubusercontent.com/schellingb/WiiBalanceScale/master/README.png)
+![Screenshot](README.png)
 
 ## Troubleshooting
 The automatic connection to the Bluetooth device requires admin rights which the application tries to acquire automatically. If this does not work for you, you can launch the application by right-clicking it and selecting 'Run as administrator' or you can connect to it using the Windows Bluetooth control panel before launching the application.
