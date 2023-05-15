@@ -3,7 +3,7 @@ WiiBalanceScale
 
 MIT License
 
-Copyright (c) 2017 Bernhard Schelling
+Copyright (c) 2017-2023 Bernhard Schelling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ namespace WiiBalanceScale
         public WiiBalanceScaleForm()
         {
             InitializeComponent();
-            this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+            try { this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName); } catch (Exception) { }
         }
 
         internal Label lblWeight;
