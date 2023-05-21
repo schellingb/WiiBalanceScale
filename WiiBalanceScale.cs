@@ -188,7 +188,7 @@ namespace WiiBalanceScale
             {
                 string sign = weight < 0.0f ? "-" : "";
                 weight = Math.Abs(weight);
-                f.lblWeight.Text = sign + (weight / 14.0f).ToString("00") + ":" + (weight % 14.0f).ToString("00.0");
+                f.lblWeight.Text = sign + Math.Floor(weight / 14.0f).ToString("00") + ":" + (weight % 14.0f).ToString("00.0");
                 f.lblUnit.Text = "st:lbs";
             }
             else
