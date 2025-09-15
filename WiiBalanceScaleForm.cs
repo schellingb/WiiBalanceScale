@@ -114,7 +114,7 @@ namespace WiiBalanceScale
             this.lblQuality.Font = new System.Drawing.Font("Wingdings", 60F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.lblQuality.Location = new System.Drawing.Point(0, 237);
             this.lblQuality.Name = "lblQuality";
-            this.lblQuality.Size = new System.Drawing.Size(884, 61);
+            this.lblQuality.Size = new System.Drawing.Size(884, 66);
             this.lblQuality.TabIndex = 8;
             this.lblQuality.Text = "®®®¡¡";
             this.lblQuality.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

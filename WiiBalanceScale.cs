@@ -40,6 +40,10 @@ namespace WiiBalanceScale
 {
     internal class WiiBalanceScale
     {
+        static bool CanShowUnicode = GetCanShowUnicode();
+        static char CharFilledStar   = (CanShowUnicode ? '\u2739' : '\u00AE');
+        static char CharHollowCircle = (CanShowUnicode ? '\u3007' : '\u00A1');
+        static char CharHourglass    = (CanShowUnicode ? '\u23F3' : '\u0036');
         static WiiBalanceScaleForm f = null;
         static Wiimote bb = null;
         static ConnectionManager cm = null;
@@ -47,21 +51,29 @@ namespace WiiBalanceScale
         static float ZeroedWeight = 0;
         static float[] History = new float[100];
         static int HistoryBest = 1, HistoryCursor = -1;
-        static string StarFull = "", StarEmpty = "";
         static EUnit SelectedUnit = EUnit.Kg;
         enum EUnit { Kg, Lb, Stone };
 
+        static bool GetCanShowUnicode()
+        {
+            try { return int.Parse(Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CurrentBuildNumber", "").ToString()) >= 19000; } catch { return false; }
+        }
+
         static void Main(string[] args)
         {
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             f = new WiiBalanceScaleForm();
-            StarFull = f.lblQuality.Text.Substring(0, 1);
-            StarEmpty = f.lblQuality.Text.Substring(4, 1);
             f.lblWeight.Text = "";
-            f.lblQuality.Text = "";
             f.lblUnit.Text = "";
+            f.lblQuality.Text = "";
+            if (CanShowUnicode)
+            {
+                f.lblQuality.Location = new System.Drawing.Point(f.lblQuality.Location.X, f.lblQuality.Location.Y - 10);
+                f.lblQuality.Font = new System.Drawing.Font("Arial", 60F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            }
             f.btnReset.Click += (object sender, System.EventArgs e) =>
             {
                 float HistorySum = 0.0f;
@@ -142,7 +154,7 @@ namespace WiiBalanceScale
                 if (cm.IsRunning())
                 {
                     f.lblWeight.Text = "WAIT...";
-                    f.lblQuality.Text = (f.lblQuality.Text.Length >= 5 ? "" : f.lblQuality.Text) + "6";
+                    f.lblQuality.Text = (f.lblQuality.Text.Length >= 5 ? "" : f.lblQuality.Text) + CharHourglass;
                     return;
                 }
                 if (cm.HadError())
@@ -199,7 +211,7 @@ namespace WiiBalanceScale
 
             f.lblQuality.Text = "";
             for (int i = 0; i < 5; i++)
-                f.lblQuality.Text += (i < ((HistoryBest + 5) / (History.Length / 5)) ? StarFull : StarEmpty);
+                f.lblQuality.Text += (i < ((HistoryBest + 5) / (History.Length / 5)) ? CharFilledStar : CharHollowCircle);
         }
     }
 }
